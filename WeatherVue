@@ -1,1 +1,173 @@
+#HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>WeatherVue</title>
+</head>
+<body>
+   <div class="header">
+      <h1>Weather Vue</h1>
+   </div>
+    <div class="container">
+      <div class="search_box"> 
+        <input type="text" placeholder="Enter city name" id="city" autocomplete="off"/>
+        <button id="search"><ion-icon class="icon" name="search"></ion-icon></button>
+      </div>
+      <div id="show"></div>
+    </div>
+   <script src="script.js"></script>  
+</body>   
+</html>
 
+#CSS
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(to right bottom, #f80202, #00fd7f); 
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8ce7f3;
+  text-align: center;
+}
+
+.container {
+  width: 80%;
+  max-width: 600px;
+  background: rgba(243, 2, 95, 0.2);
+  border-radius: 1rem;
+  box-shadow: 0 0 1rem rgba(0, 0, 0, 0.3);
+  padding: 2rem;
+}
+
+.search_box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.search_box input {
+  flex: 1;
+  padding: 1rem;
+  font-size: 1.4rem;
+  border: none;
+  border-radius: 2rem;
+  background: rgba(218, 231, 27, 0.13);
+  color: #f5ef9f;
+  outline: none;
+}
+
+.search_box button {
+  border: none;
+  background: #e0a2f3;
+  color: #99f1a8;
+  cursor: pointer;
+  border-radius: 2rem;
+  padding: 1rem 2rem;
+  margin-left: 1rem;
+  transition: background 0.3s ease;
+}
+
+.search_box button:hover {
+  background: #d35400;
+}
+
+.error {
+  color: #eb230d;
+  font-size: 1.4rem;
+  margin-top: 1rem;
+}
+
+#show {
+  margin-top: 2rem;
+}
+
+#show h2 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.weather, .desc {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+  color: #f39c12;
+}
+
+.temp_container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.temp_container div {
+  padding: 0 1.5rem;
+}
+
+.temp_container .title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #8cfaba;
+}
+
+.temp_container .temp {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  color: #3498db;
+}
+
+
+#JavaScript 
+let show = document.getElementById("show");
+let search = document.getElementById("search");
+let cityVal = document.getElementById("city");
+let key = "2f745fa85d563da5adb87b6cd4b81caf";
+
+let getWeather = () => {
+    let cityValue = cityVal.value.trim();
+    if (cityValue.length === 0) {
+        show.innerHTML = `<h3 class="error">Enter city name</h3>`;
+    } else {
+        let url = `https://api.openweathermap.org/data/2.5/weather?q=${cityValue}&appid=${key}&units=metric`;
+        cityVal.value = "";
+        fetch(url)
+            .then((resp) => {
+                if (!resp.ok) {
+                    throw new Error('City not found');
+                }
+                return resp.json();
+            })
+            .then((data) => {
+                show.innerHTML = `
+                    <h2>${data.name}, ${data.sys.country}</h2>
+                    <h4 class="weather">${data.weather[0].main}</h4>
+                    <h4 class="desc">${data.weather[0].description}</h4>
+                    <img src="https://openweathermap.org/img/w/${data.weather[0].icon}.png">
+                    <h1>${data.main.temp} &#176;</h1>
+                    <div class="temp_container">
+                        <div>
+                            <h4 class="title">Min</h4>
+                            <h4 class="temp">${data.main.temp_min}&#176;</h4>
+                        </div>
+                        <div>
+                            <h4 class="title">Max</h4>
+                            <h4 class="temp">${data.main.temp_max}&#176;</h4>
+                        </div>
+                    </div>
+                `;
+            })
+            .catch((error) => {
+                console.error('Error fetching weather:', error);
+                show.innerHTML = `<h3 class="error">City not found</h3>`;
+            });
+    }
+};
+
+search.addEventListener("click", getWeather);
